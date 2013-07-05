@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html class="no-js" ng-app="profileDemo">
+    <head>
+        <meta charset="utf-8">
+        <title>User Profile Switcher Demo</title>
+    </head>
+    <body ng-cloak>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="#">User Profile Switcher Demo</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container" ng-controller="profileCtrl">
+            <div id="profileSelector" class="btn-group">
+                <button class="btn" ng-click="switchProfile('finance')">{{profiles.finance.title}}</button>
+                <button class="btn" ng-click="switchProfile('technology')">{{profiles.technology.title}}</button>
+                <button class="btn" ng-click="switchProfile('cars')">{{profiles.cars.title}}</button>
+                <button class="btn" ng-click="switchProfile('sports')">{{profiles.sports.title}}</button>
+                <button class="btn" ng-click="switchProfile('health')">{{profiles.health.title}}</button>
+            </div>
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <div class="hero-unit">
+                <h2>{{profiles[currentProfile.type].title}}</h2>
+                <p>{{currentProfile.interests | json}}</p>
+            </div>
+
+            <!-- Example row of columns -->
+            <div class="row">
+                <div class="span6">
+                    <h2>Personalized</h2>
+                    <table class="table table-condensed" ng-repeat="article in personalized">
+                        <tr>
+                            <td><a href="{{article.link}}" ng-bind-html="article.title | truncate:60"></a></td>
+                            <td class="right">{{articleCategories[article.link]}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="span6">
+                    <h2>Chronological</h2>
+                    <table class="table table-condensed" ng-repeat="article in chronological">
+                        <tr>
+                            <td><a href="{{article.link}}" ng-bind-html="article.title | truncate:60"></a></td>
+                            <td class="right">{{articleCategories[article.link]}}</td>
+                        </tr>
+                    </table>
+               </div>
+            </div>
+
+            <hr>
+
+            <footer ng-controller="footerCtrl">
+                <img alt="mozilla.org" src="{{footerUrl}}"/>
+            </footer>
+        </div> <!-- /container -->
+    </body>
+</html>

@@ -1,0 +1,9 @@
+/* --- General --- */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none;
+}
+body { padding-top: 60px; padding-bottom:40px;}
+#profileSelector {margin-bottom: 5px;}
+.hero-unit {padding: 30px;}
+td.right {text-align: right;}
+.table {margin-bottom: 0;}
