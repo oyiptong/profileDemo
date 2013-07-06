@@ -16,7 +16,12 @@ const FEEDS = [
     "http://www.techmeme.com/feed.xml",
     "http://feeds.feedburner.com/TechCrunch/",
     "http://sports-ak.espn.go.com/espn/rss/news",
-    "http://feeds.bbci.co.uk/news/health/rss.xml",
+    "http://rssfeeds.webmd.com/rss/rss.aspx?RSSSource=RSS_PUBLIC",
+    "http://www.polygon.com/rss/index.xml",
+    "http://www.joystiq.com//rss.xml",
+    "http://feeds.gawker.com/kotaku/full",
+    "http://modernistcuisine.com/feed/",
+    "http://feeds.feedburner.com/ThePickyEaterBlog",
 ];
 const PROFILES = {
   finance : {
@@ -43,13 +48,13 @@ const PROFILES = {
       ["technology", {visitTime: (NOW - MS_PER_DAY*0), visitCount: 4}],
       ["technology", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 13}],
       ["technology", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 34}],
-      ["science", {visitTime: (NOW - MS_PER_DAY*0), visitCount: 2}],
-      ["science", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 8}],
-      ["science", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 16}],
-      ["business", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 5}],
-      ["business", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 17}],
-      ["politics", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 6}],
-      ["politics", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 13}],
+      ["video-games", {visitTime: (NOW - MS_PER_DAY*0), visitCount: 2}],
+      ["video-games", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 8}],
+      ["video-games", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 16}],
+      ["consumer-electronics", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 5}],
+      ["consumer-electronics", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 17}],
+      ["science", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 6}],
+      ["science", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 13}],
       ["society", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 4}],
       ["society", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 5}],
     ],
@@ -64,8 +69,8 @@ const PROFILES = {
       ["society", {visitTime: (NOW - MS_PER_DAY*0), visitCount: 2}],
       ["society", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 4}],
       ["society", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 12}],
-      ["health", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 3}],
-      ["health", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 5}],
+      ["consumer-electronics", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 3}],
+      ["consumer-electronics", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 5}],
       ["politics", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 4}],
       ["politics", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 2}],
       ["sports", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 2}],
@@ -76,19 +81,43 @@ const PROFILES = {
   sports : {
     title : "Sports Addict",
     visits : [
+      ["sports", {visitTime: (NOW - MS_PER_DAY*0), visitCount: 5}],
+      ["sports", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 13}],
+      ["sports", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 40}],
+      ["video-games", {visitTime: (NOW - MS_PER_DAY*0), visitCount: 1}],
+      ["video-games", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 4}],
+      ["video-games", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 10}],
+      ["games", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 2}],
+      ["games", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 5}],
+      ["society", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 6}],
+      ["society", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 4}],
+      ["tv", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 5}],
+      ["tv", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 7}],
     ],
   },
 
   health : {
     title : "Health Nut",
     visits : [
+      ["health", {visitTime: (NOW - MS_PER_DAY*0), visitCount: 3}],
+      ["health", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 7}],
+      ["health", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 15}],
+      ["food", {visitTime: (NOW - MS_PER_DAY*0), visitCount: 2}],
+      ["food", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 5}],
+      ["food", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 3}],
+      ["cuisine", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 5}],
+      ["cuisine", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 2}],
+      ["news", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 5}],
+      ["news", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 8}],
+      ["shopping", {visitTime: (NOW - MS_PER_DAY*8), visitCount: 2}],
+      ["shopping", {visitTime: (NOW - MS_PER_DAY*16), visitCount: 1}],
     ],
   },
 };
 
 function compareArticle(a,b){b.publishedDate-a.publishedDate};
 
-let categorizedArticles = {}
+let categorizedArticles = {};
 let numEntries = 0;
 let numArticles = 0;
 let numFeeds = 0;
@@ -210,7 +239,7 @@ demo.config(['$httpProvider', $httpProvider => {
 }]);
 demo.run(function(dataService) {
   for (let i=0; i < FEEDS.length; i++) {
-    dataService.getFeed("collectFeed", FEEDS[i], 25);
+    dataService.getFeed("collectFeed", FEEDS[i], 50);
   }
 });
 
@@ -220,11 +249,12 @@ demo.controller("profileCtrl", function($scope, dataService) {
   $scope.personalized = [];
   $scope.articles = [];
   $scope.articleCategories = {};
+  $scope.loadingUrl = assets.loadingUrl;
 
   $scope.currentProfile = {
     type: "finance",
     title: PROFILES["finance"].title,
-    interests: {},
+    interests: null,
   }
 
   $scope.updateInterests = function() {
@@ -268,6 +298,7 @@ demo.controller("profileCtrl", function($scope, dataService) {
         console.log("no article in the interest: " + interest.name);
       }
     });
+    personalized.sort(compareArticle);
     $scope.personalized = personalized.slice(0, NUM_ARTICLES);
   }
 
@@ -313,7 +344,7 @@ demo.controller("profileCtrl", function($scope, dataService) {
     $scope.chronological = $scope.articles.slice(0,NUM_ARTICLES);
 
     for (let interest in categorizedArticles) {
-      categorizedArticles[interest] = categorizedArticles[interest].sort(compareArticle);
+      categorizedArticles[interest].sort(compareArticle);
     }
     $scope.switchProfile($scope.currentProfile.type);
   });
