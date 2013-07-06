@@ -115,6 +115,8 @@ const PROFILES = {
   },
 };
 
+let interestChart;
+
 function compareArticle(a,b){b.publishedDate-a.publishedDate};
 
 let categorizedArticles = {};
@@ -122,18 +124,11 @@ let numEntries = 0;
 let numArticles = 0;
 let numFeeds = 0;
 
-let DataService = function($window, $rootScope, $http, $resource) {
+let DataService = function($window, $rootScope, $http) {
 
   this.window = $window;
   this.rootScope = $rootScope;
   this.http = $http;
-  this.Feed = $resource("https://ajax.googleapis.com/ajax/services/feed/load?v=:version&q=:feed&userip=:userip", {version: "1.0"}, {
-    get: {
-      method: "GET",
-      isArray: false,
-      headers: {Referer: "https://mozilla.org"},
-    }
-  });
 
   // relay messages from the addon to the page
   self.port.on("message", message => {
@@ -210,7 +205,7 @@ DataService.prototype = {
   },
 }
 
-let demo = angular.module("profileDemo", ["ngResource", "ngSanitize"]);
+let demo = angular.module("profileDemo", ["ngSanitize"]);
 demo.filter('fromNow', function() {
   return function(dateObj) {
     return moment(new Date(dateObj)).fromNow()
@@ -261,7 +256,39 @@ demo.controller("profileCtrl", function($scope, dataService) {
     dataService.getTopInterests("updateInterests", 5);
     $scope.$on("updateInterests", function(event, data){
       $scope.currentProfile.interests = data;
+      $scope.redrawChart();
       $scope.personalize();
+    });
+  }
+
+  $scope.redrawChart = function() {
+    let dataPoints = [];
+    for (let i=0; i <  $scope.currentProfile.interests.length; i++) {
+      dataPoints.push({
+        label: $scope.currentProfile.interests[i].name,
+        value: $scope.currentProfile.interests[i].score,
+      });
+    }
+    let chartData = {
+      key: "interests",
+      values: dataPoints,
+    }
+
+    nv.addGraph(function() {
+      var chart = nv.models.discreteBarChart()
+        .x(function(d) { return d.label })
+        .y(function(d) { return d.value })
+        .tooltips(false)
+        .showValues(true);
+
+      d3.select('#interestsChart svg')
+        .datum([chartData])
+        .transition().duration(500)
+        .call(chart);
+
+      nv.utils.windowResize(chart.update);
+
+      return chart;
     });
   }
 

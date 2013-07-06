@@ -28,10 +28,11 @@
             </div>
 
             <!-- Main hero unit for a primary marketing message or call to action -->
-            <div class="hero-unit">
+            <div class="">
                 <h2>{{profiles[currentProfile.type].title}}</h2>
-                <div ng-hide="currentProfile.interests"><img src="{{loadingUrl}}"/></div>
-                <p ng-show="currentProfile.interests">{{currentProfile.interests | json}}</p>
+                <div id="interestsChart">
+                    <svg style="height: 300px"></svg>
+                </div>
             </div>
 
             <!-- Example row of columns -->
@@ -40,7 +41,7 @@
                     <h2>Personalized</h2>
                     <table class="table table-condensed" ng-show="personalized">
                         <tr ng-repeat="article in personalized">
-                            <td><a href="{{article.link}}" ng-bind-html="article.title | truncate:60"></a></td>
+                            <td><a href="{{article.link}}" ng-bind-html="article.title | truncate:55"></a></td>
                             <td class="right"><span ng-repeat="interest in articleCategories[article.link]">{{interest}}{{{true: "", false: ", "}[$last]}}</span></td>
                         </tr>
                     </table>
@@ -50,7 +51,7 @@
                     <h2>Chronological</h2>
                     <table class="table table-condensed" ng-show="chronological">
                         <tr ng-repeat="article in chronological">
-                            <td><a href="{{article.link}}" ng-bind-html="article.title | truncate:60"></a></td>
+                            <td><a href="{{article.link}}" ng-bind-html="article.title | truncate:55"></a></td>
                             <td class="right"><span ng-repeat="interest in articleCategories[article.link]">{{interest}}{{{true: "", false: ", "}[$last]}}</span></td>
                         </tr>
                     </table>
