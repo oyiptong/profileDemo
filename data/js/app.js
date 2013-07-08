@@ -116,6 +116,7 @@ const PROFILES = {
 };
 
 let interestChart;
+nv.dev = false;
 
 function compareArticle(a,b){b.publishedDate-a.publishedDate};
 
@@ -254,10 +255,11 @@ demo.controller("profileCtrl", function($scope, dataService) {
 
   $scope.updateInterests = function() {
     dataService.getTopInterests("updateInterests", 5);
-    $scope.$on("updateInterests", function(event, data){
+    let deRegisterUpdate = $scope.$on("updateInterests", function(event, data){
       $scope.currentProfile.interests = data;
       $scope.redrawChart();
       $scope.personalize();
+      deRegisterUpdate();
     });
   }
 
@@ -274,6 +276,8 @@ demo.controller("profileCtrl", function($scope, dataService) {
       values: dataPoints,
     }
 
+    console.log("length is: " + nv.render.queue.length);
+    // TODO: render pre-existing graph
     nv.addGraph(function() {
       var chart = nv.models.discreteBarChart()
         .x(function(d) { return d.label })
@@ -299,11 +303,13 @@ demo.controller("profileCtrl", function($scope, dataService) {
       title: PROFILES[type].title,
     };
     dataService.clearVisits(oldType+"clearFor"+type);
-    $scope.$on(oldType+"clearFor"+type, function() {
+    let deRegisterClear = $scope.$on(oldType+"clearFor"+type, function() {
       dataService.storeVisits("visitsFor"+type, PROFILES[type].visits);
-      $scope.$on("visitsFor"+type, function() {
+      let deRegisterUpdate = $scope.$on("visitsFor"+type, function() {
         $scope.updateInterests();
+        deRegisterUpdate();
       });
+      deRegisterClear();
     });
   }
 
@@ -342,7 +348,7 @@ demo.controller("profileCtrl", function($scope, dataService) {
         numEntries += 1;
 
         dataService.classify(article.link+i, article.link, article.title + " " + article.contentSnippet);
-        $scope.$on(article.link+i, function(event, interests) {
+        let deRegisterClassify = $scope.$on(article.link+i, function(event, interests) {
           $scope.articleCategories[article.link] = interests;
           numArticles += 1;
           interests.forEach(interest => {
@@ -358,6 +364,7 @@ demo.controller("profileCtrl", function($scope, dataService) {
           if(numFeeds == FEEDS.length && numEntries == numArticles) {
             $scope.$broadcast("doneFeeds");
           }
+          deRegisterClassify();
         });
       }
     }
