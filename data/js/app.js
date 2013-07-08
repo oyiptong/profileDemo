@@ -115,8 +115,26 @@ const PROFILES = {
   },
 };
 
-let interestChart;
+/////     Chart initialization     /////
+
 nv.dev = false;
+
+let interestsChart = nv.models.discreteBarChart()
+  .x(function(d) { return d.label })
+  .y(function(d) { return d.value })
+  .tooltips(false)
+  .showValues(true);
+
+
+nv.addGraph(function() {
+  d3.select('#interestsChart svg')
+    .transition().duration(500)
+    .call(interestsChart);
+  nv.utils.windowResize(interestsChart.update);
+  return interestsChart;
+});
+
+/////     Application code     /////
 
 function compareArticle(a,b){b.publishedDate-a.publishedDate};
 
@@ -246,6 +264,10 @@ demo.controller("profileCtrl", function($scope, dataService) {
   $scope.articles = [];
   $scope.articleCategories = {};
   $scope.loadingUrl = assets.loadingUrl;
+  $scope.chartStatus = {
+    "#personalizedChart svg": false,
+    "#chronologicalChart svg": false,
+  };
 
   $scope.currentProfile = {
     type: "finance",
@@ -253,22 +275,14 @@ demo.controller("profileCtrl", function($scope, dataService) {
     interests: null,
   }
 
-  $scope.updateInterests = function() {
-    dataService.getTopInterests("updateInterests", 5);
-    let deRegisterUpdate = $scope.$on("updateInterests", function(event, data){
-      $scope.currentProfile.interests = data;
-      $scope.redrawChart();
-      $scope.personalize();
-      deRegisterUpdate();
-    });
-  }
+  /** Graph redraw **/
 
-  $scope.redrawChart = function() {
+  $scope.redrawChart = function(elementSelector, chart, data) {
     let dataPoints = [];
-    for (let i=0; i <  $scope.currentProfile.interests.length; i++) {
+    for (let i=0; i <  data.length; i++) {
       dataPoints.push({
-        label: $scope.currentProfile.interests[i].name,
-        value: $scope.currentProfile.interests[i].score,
+        label: data[i].name,
+        value: data[i].score,
       });
     }
     let chartData = {
@@ -276,25 +290,56 @@ demo.controller("profileCtrl", function($scope, dataService) {
       values: dataPoints,
     }
 
-    console.log("length is: " + nv.render.queue.length);
-    // TODO: render pre-existing graph
-    nv.addGraph(function() {
-      var chart = nv.models.discreteBarChart()
+    d3.select(elementSelector)
+      .datum([chartData]);
+    chart.update();
+  }
+
+  $scope.updateArticleChart = function(elementSelector, data) {
+    let interestCounts = {};
+    let dataPoints = [];
+    data.forEach(article => {
+      $scope.articleCategories[article.link].forEach(interestName => {
+        if(interestCounts.hasOwnProperty(interestName)) {
+          interestCounts[interestName] += 1;
+        }
+        else {
+          interestCounts[interestName] = 1;
+        }
+      });
+    });
+    Object.keys(interestCounts).forEach(interestName => {
+      dataPoints.push({label: interestName, value: interestCounts[interestName]});
+    });
+
+    let chartData = {
+      key: "interests",
+      values: dataPoints,
+    }
+
+    if ($scope.chartStatus[elementSelector]) {
+      d3.select(elementSelector).datum([chartData]);
+      $scope.chartStatus[elementSelector].update();
+    }
+    else {
+      let pieChart = nv.models.pieChart()
         .x(function(d) { return d.label })
         .y(function(d) { return d.value })
-        .tooltips(false)
-        .showValues(true);
+        .showLabels(true);
 
-      d3.select('#interestsChart svg')
-        .datum([chartData])
-        .transition().duration(500)
-        .call(chart);
-
-      nv.utils.windowResize(chart.update);
-
-      return chart;
-    });
+      nv.addGraph(function() {
+        d3.select(elementSelector)
+          .transition().duration(500)
+          .call(pieChart);
+        nv.utils.windowResize(pieChart.update);
+        return pieChart;
+      });
+      d3.select(elementSelector).datum([chartData]);
+      $scope.chartStatus[elementSelector] = pieChart;
+    }
   }
+
+  /** data update **/
 
   $scope.switchProfile = function(type) {
     let oldType = $scope.currentProfile.type;
@@ -313,6 +358,14 @@ demo.controller("profileCtrl", function($scope, dataService) {
     });
   }
 
+  $scope.updateInterests = function() {
+    dataService.getTopInterests("updateInterests", 5);
+  }
+  $scope.$on("updateInterests", function(event, data){
+      $scope.currentProfile.interests = data;
+      $scope.redrawChart("#interestsChart svg", interestsChart, $scope.currentProfile.interests);
+      $scope.personalize();
+  });
 
   $scope.personalize = function() {
     let categoryNumbers = {};
@@ -327,12 +380,11 @@ demo.controller("profileCtrl", function($scope, dataService) {
       if (categorizedArticles.hasOwnProperty(interest.name)) {
         personalized = personalized.concat(categorizedArticles[interest.name].slice(0, number));
       }
-      else {
-        console.log("no article in the interest: " + interest.name);
-      }
     });
     personalized.sort(compareArticle);
     $scope.personalized = personalized.slice(0, NUM_ARTICLES);
+    $scope.updateArticleChart("#personalizedChart svg", $scope.personalized);
+    $scope.updateArticleChart("#chronologicalChart svg", $scope.chronological);
   }
 
   $scope.$on("collectFeed", function(event, data) {
@@ -360,7 +412,7 @@ demo.controller("profileCtrl", function($scope, dataService) {
           });
           $scope.articles.push(article);
 
-          // we're done leading all articles
+          // we're done loading all articles
           if(numFeeds == FEEDS.length && numEntries == numArticles) {
             $scope.$broadcast("doneFeeds");
           }
@@ -388,8 +440,7 @@ demo.controller("footerCtrl", function($scope, dataService) {
   $scope.footerUrl = assets.footerUrl;
 });
 
-demo.controller("rssCtrl", function($scope, dataService) {
-});
+/////     Low-level data injection     /////
 
 self.port.on("style", function(file) {
   let link = document.createElement("link");

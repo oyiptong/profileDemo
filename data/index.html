@@ -39,6 +39,9 @@
             <div class="row">
                 <div class="span6 content">
                     <h2>Personalized</h2>
+                    <div id="personalizedChart">
+                        <svg style="height: 300px"></svg>
+                    </div>
                     <table class="table table-condensed" ng-show="personalized">
                         <tr ng-repeat="article in personalized">
                             <td><a href="{{article.link}}" ng-bind-html="article.title | truncate:55"></a></td>
@@ -49,6 +52,9 @@
                 </div>
                 <div class="span6 content">
                     <h2>Chronological</h2>
+                    <div id="chronologicalChart">
+                        <svg style="height: 300px"></svg>
+                    </div>
                     <table class="table table-condensed" ng-show="chronological">
                         <tr ng-repeat="article in chronological">
                             <td><a href="{{article.link}}" ng-bind-html="article.title | truncate:55"></a></td>
